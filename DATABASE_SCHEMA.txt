@@ -1,0 +1,713 @@
+==============================================================================
+ ApniLeap Mini-Project Portfolio Monitoring Portal - DATABASE SCHEMA
+==============================================================================
+ Database : apnileap_portfolio  (PostgreSQL)
+ Generated: 2026-09-19 16:28:17 UTC from the live database
+ Tables   : 25
+ Source   : backend/db/schema.sql (idempotent; applied by "npm run db:init")
+
+CONTENTS
+   1. audit_logs               (419 rows)
+   2. confluence_links         (4 rows)
+   3. corrective_actions       (0 rows)
+   4. departments              (2 rows)
+   5. institutes               (5 rows)
+   6. issues                   (0 rows)
+   7. jira_links               (4 rows)
+   8. kpi_measurements         (0 rows)
+   9. kpis                     (0 rows)
+  10. milestones               (0 rows)
+  11. notifications            (0 rows)
+  12. project_links            (0 rows)
+  13. project_members          (0 rows)
+  14. project_students         (24 rows)
+  15. projects                 (6 rows)
+  16. reviews                  (0 rows)
+  17. roles                    (9 rows)
+  18. schema_migrations        (1 rows)
+  19. status_history           (7 rows)
+  20. student_teams            (0 rows)
+  21. support_requests         (0 rows)
+  22. user_department_access   (4 rows)
+  23. user_institute_access    (19 rows)
+  24. user_roles               (31 rows)
+  25. users                    (31 rows)
+
+==============================================================================
+ RELATIONSHIPS (foreign keys)
+==============================================================================
+  audit_logs.institute_id                      -> institutes.id  ON DELETE SET NULL
+  audit_logs.user_id                           -> users.id  ON DELETE SET NULL
+  confluence_links.project_id                  -> projects.id  ON DELETE CASCADE
+  corrective_actions.issue_id                  -> issues.id  ON DELETE SET NULL
+  corrective_actions.owner_user_id             -> users.id  ON DELETE SET NULL
+  corrective_actions.project_id                -> projects.id  ON DELETE CASCADE
+  corrective_actions.verified_by               -> users.id  ON DELETE SET NULL
+  departments.coordinator_user_id              -> users.id  ON DELETE SET NULL
+  departments.head_user_id                     -> users.id  ON DELETE SET NULL
+  departments.institute_id                     -> institutes.id  ON DELETE CASCADE
+  issues.project_id                            -> projects.id  ON DELETE CASCADE
+  issues.raised_by                             -> users.id  ON DELETE SET NULL
+  jira_links.project_id                        -> projects.id  ON DELETE CASCADE
+  kpi_measurements.kpi_id                      -> kpis.id  ON DELETE CASCADE
+  kpi_measurements.recorded_by                 -> users.id  ON DELETE SET NULL
+  kpis.owner_user_id                           -> users.id  ON DELETE SET NULL
+  kpis.project_id                              -> projects.id  ON DELETE CASCADE
+  milestones.project_id                        -> projects.id  ON DELETE CASCADE
+  notifications.project_id                     -> projects.id  ON DELETE CASCADE
+  notifications.user_id                        -> users.id  ON DELETE CASCADE
+  project_links.created_by                     -> users.id  ON DELETE SET NULL
+  project_links.project_id                     -> projects.id  ON DELETE CASCADE
+  project_members.project_id                   -> projects.id  ON DELETE CASCADE
+  project_members.user_id                      -> users.id  ON DELETE SET NULL
+  project_students.project_id                  -> projects.id  ON DELETE CASCADE
+  projects.created_by                          -> users.id  ON DELETE SET NULL
+  projects.department_id                       -> departments.id  ON DELETE RESTRICT
+  projects.institute_id                        -> institutes.id  ON DELETE RESTRICT
+  projects.mentor_user_id                      -> users.id  ON DELETE SET NULL
+  projects.student_team_id                     -> student_teams.id  ON DELETE SET NULL
+  reviews.project_id                           -> projects.id  ON DELETE CASCADE
+  reviews.reviewer_user_id                     -> users.id  ON DELETE SET NULL
+  status_history.approved_by                   -> users.id  ON DELETE SET NULL
+  status_history.changed_by                    -> users.id  ON DELETE SET NULL
+  status_history.project_id                    -> projects.id  ON DELETE CASCADE
+  student_teams.department_id                  -> departments.id  ON DELETE CASCADE
+  support_requests.project_id                  -> projects.id  ON DELETE CASCADE
+  support_requests.requested_by                -> users.id  ON DELETE SET NULL
+  user_department_access.department_id         -> departments.id  ON DELETE CASCADE
+  user_department_access.user_id               -> users.id  ON DELETE CASCADE
+  user_institute_access.institute_id           -> institutes.id  ON DELETE CASCADE
+  user_institute_access.user_id                -> users.id  ON DELETE CASCADE
+  user_roles.role_id                           -> roles.id  ON DELETE RESTRICT
+  user_roles.user_id                           -> users.id  ON DELETE CASCADE
+
+==============================================================================
+ TABLES
+==============================================================================
+
+------------------------------------------------------------------------------
+ TABLE audit_logs   (419 rows)
+------------------------------------------------------------------------------
+  Column        Type              Null?     Default / notes
+  ------------- ----------------- --------- ------------------------------
+  id            BIGINT            NOT NULL  nextval('audit_logs_id_seq'::regclass)
+  user_id       UUID              null      
+  action        VARCHAR(80)       NOT NULL  
+  entity_type   VARCHAR(50)       null      
+  entity_id     VARCHAR(300)      null      
+  institute_id  UUID              null      
+  details       JSONB             null      
+  ip_address    VARCHAR(64)       null      
+  created_at    TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] audit_logs_institute_id_fkey: FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE SET NULL
+    [FOREIGN KEY] audit_logs_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] audit_logs_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_audit_logs_action: ON audit_logs USING btree (action)
+    idx_audit_logs_created: ON audit_logs USING btree (created_at)
+    idx_audit_logs_user: ON audit_logs USING btree (user_id)
+
+------------------------------------------------------------------------------
+ TABLE confluence_links   (4 rows)
+------------------------------------------------------------------------------
+  Column              Type              Null?     Default / notes
+  ------------------- ----------------- --------- ------------------------------
+  id                  UUID              NOT NULL  uuid_generate_v4()
+  project_id          UUID              NOT NULL  
+  confluence_page_id  VARCHAR(60)       NOT NULL  
+  page_url            TEXT              null      
+  link_type           VARCHAR(30)       NOT NULL  'PROJECT_DOCS'::character varying
+  created_at          TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] confluence_links_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] confluence_links_pkey: PRIMARY KEY (id)
+
+------------------------------------------------------------------------------
+ TABLE corrective_actions   (0 rows)
+------------------------------------------------------------------------------
+  Column         Type              Null?     Default / notes
+  -------------- ----------------- --------- ------------------------------
+  id             UUID              NOT NULL  uuid_generate_v4()
+  project_id     UUID              NOT NULL  
+  issue_id       UUID              null      
+  description    TEXT              NOT NULL  
+  owner_user_id  UUID              null      
+  due_date       DATE              null      
+  evidence       TEXT              null      
+  status         VARCHAR(20)       NOT NULL  'OPEN'::character varying
+  completed_at   TIMESTAMPTZ       null      
+  verified_by    UUID              null      
+  verified_at    TIMESTAMPTZ       null      
+  created_at     TIMESTAMPTZ       NOT NULL  now()
+  updated_at     TIMESTAMPTZ       NOT NULL  now()
+  owner_name     VARCHAR(200)      null      
+
+  Constraints:
+    [CHECK] corrective_actions_status_check: CHECK (((status)::text = ANY ((ARRAY['OPEN'::character varying, 'IN_PROGRESS'::character varying, 'COMPLETED'::character varying, 'VERIFIED'::character varying, 'OVERDUE'::character varying])::text[])))
+    [FOREIGN KEY] corrective_actions_issue_id_fkey: FOREIGN KEY (issue_id) REFERENCES issues(id) ON DELETE SET NULL
+    [FOREIGN KEY] corrective_actions_owner_user_id_fkey: FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] corrective_actions_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [FOREIGN KEY] corrective_actions_verified_by_fkey: FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] corrective_actions_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_actions_project: ON corrective_actions USING btree (project_id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE departments   (2 rows)
+------------------------------------------------------------------------------
+  Column               Type              Null?     Default / notes
+  -------------------- ----------------- --------- ------------------------------
+  institute_id         UUID              NOT NULL  
+  code                 VARCHAR(30)       NOT NULL  
+  name                 VARCHAR(200)      NOT NULL  
+  head_user_id         UUID              null      
+  is_active            BOOLEAN           NOT NULL  true
+  created_at           TIMESTAMPTZ       NOT NULL  now()
+  updated_at           TIMESTAMPTZ       NOT NULL  now()
+  coordinator_user_id  UUID              null      
+  head_display_name    VARCHAR(200)      null      
+  id                   INTEGER           NOT NULL  nextval('departments_id_seq'::regclass)
+
+  Constraints:
+    [FOREIGN KEY] departments_coordinator_user_id_fkey: FOREIGN KEY (coordinator_user_id) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] departments_head_user_id_fkey: FOREIGN KEY (head_user_id) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] departments_institute_id_fkey: FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+    [PRIMARY KEY] departments_pkey: PRIMARY KEY (id)
+    [UNIQUE] departments_institute_id_code_key: UNIQUE (institute_id, code)
+
+  Indexes:
+    uq_departments_institute_name: UNIQUE ON departments USING btree (institute_id, lower((name)::text))
+
+  Triggers:
+    trg_department_code (BEFORE)
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE institutes   (5 rows)
+------------------------------------------------------------------------------
+  Column         Type              Null?     Default / notes
+  -------------- ----------------- --------- ------------------------------
+  id             UUID              NOT NULL  uuid_generate_v4()
+  code           VARCHAR(30)       NOT NULL  
+  name           VARCHAR(200)      NOT NULL  
+  is_active      BOOLEAN           NOT NULL  true
+  created_at     TIMESTAMPTZ       NOT NULL  now()
+  updated_at     TIMESTAMPTZ       NOT NULL  now()
+  display_order  INTEGER           NOT NULL  100
+
+  Constraints:
+    [PRIMARY KEY] institutes_pkey: PRIMARY KEY (id)
+    [UNIQUE] institutes_code_key: UNIQUE (code)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE issues   (0 rows)
+------------------------------------------------------------------------------
+  Column                 Type              Null?     Default / notes
+  ---------------------- ----------------- --------- ------------------------------
+  id                     UUID              NOT NULL  uuid_generate_v4()
+  project_id             UUID              NOT NULL  
+  title                  VARCHAR(300)      NOT NULL  
+  root_cause             TEXT              null      
+  impact                 TEXT              null      
+  support_required       TEXT              null      
+  escalation_level       VARCHAR(30)       NOT NULL  'NONE'::character varying
+  status                 VARCHAR(20)       NOT NULL  'OPEN'::character varying
+  raised_by              UUID              null      
+  created_at             TIMESTAMPTZ       NOT NULL  now()
+  updated_at             TIMESTAMPTZ       NOT NULL  now()
+  escalation_owner_name  VARCHAR(200)      null      
+
+  Constraints:
+    [CHECK] issues_escalation_level_check: CHECK (((escalation_level)::text = ANY ((ARRAY['NONE'::character varying, 'DEPARTMENT'::character varying, 'INSTITUTE'::character varying, 'PROGRAMME'::character varying])::text[])))
+    [CHECK] issues_status_check: CHECK (((status)::text = ANY ((ARRAY['OPEN'::character varying, 'IN_PROGRESS'::character varying, 'RESOLVED'::character varying, 'CLOSED'::character varying])::text[])))
+    [FOREIGN KEY] issues_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [FOREIGN KEY] issues_raised_by_fkey: FOREIGN KEY (raised_by) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] issues_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_issues_project: ON issues USING btree (project_id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE jira_links   (4 rows)
+------------------------------------------------------------------------------
+  Column          Type              Null?     Default / notes
+  --------------- ----------------- --------- ------------------------------
+  id              UUID              NOT NULL  uuid_generate_v4()
+  project_id      UUID              NOT NULL  
+  jira_issue_key  VARCHAR(40)       NOT NULL  
+  jira_issue_id   VARCHAR(40)       null      
+  link_type       VARCHAR(30)       NOT NULL  'PROJECT'::character varying
+  created_at      TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] jira_links_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] jira_links_pkey: PRIMARY KEY (id)
+
+------------------------------------------------------------------------------
+ TABLE kpi_measurements   (0 rows)
+------------------------------------------------------------------------------
+  Column          Type              Null?     Default / notes
+  --------------- ----------------- --------- ------------------------------
+  id              UUID              NOT NULL  uuid_generate_v4()
+  kpi_id          UUID              NOT NULL  
+  measured_value  VARCHAR(100)      null      
+  evidence        TEXT              null      
+  measured_at     TIMESTAMPTZ       NOT NULL  now()
+  recorded_by     UUID              null      
+  created_at      TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] kpi_measurements_kpi_id_fkey: FOREIGN KEY (kpi_id) REFERENCES kpis(id) ON DELETE CASCADE
+    [FOREIGN KEY] kpi_measurements_recorded_by_fkey: FOREIGN KEY (recorded_by) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] kpi_measurements_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_kpi_measurements_kpi: ON kpi_measurements USING btree (kpi_id)
+
+------------------------------------------------------------------------------
+ TABLE kpis   (0 rows)
+------------------------------------------------------------------------------
+  Column         Type              Null?     Default / notes
+  -------------- ----------------- --------- ------------------------------
+  id             UUID              NOT NULL  uuid_generate_v4()
+  project_id     UUID              NOT NULL  
+  name           VARCHAR(200)      NOT NULL  
+  target_value   VARCHAR(100)      null      
+  unit           VARCHAR(40)       null      
+  owner_user_id  UUID              null      
+  created_at     TIMESTAMPTZ       NOT NULL  now()
+  updated_at     TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] kpis_owner_user_id_fkey: FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] kpis_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] kpis_pkey: PRIMARY KEY (id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE milestones   (0 rows)
+------------------------------------------------------------------------------
+  Column        Type              Null?     Default / notes
+  ------------- ----------------- --------- ------------------------------
+  id            UUID              NOT NULL  uuid_generate_v4()
+  project_id    UUID              NOT NULL  
+  title         VARCHAR(200)      NOT NULL  
+  description   TEXT              null      
+  due_date      DATE              null      
+  status        VARCHAR(20)       NOT NULL  'UPCOMING'::character varying
+  completed_at  TIMESTAMPTZ       null      
+  created_at    TIMESTAMPTZ       NOT NULL  now()
+  updated_at    TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [CHECK] milestones_status_check: CHECK (((status)::text = ANY ((ARRAY['UPCOMING'::character varying, 'IN_PROGRESS'::character varying, 'COMPLETED'::character varying, 'MISSED'::character varying])::text[])))
+    [FOREIGN KEY] milestones_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] milestones_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_milestones_project: ON milestones USING btree (project_id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE notifications   (0 rows)
+------------------------------------------------------------------------------
+  Column      Type              Null?     Default / notes
+  ----------- ----------------- --------- ------------------------------
+  id          UUID              NOT NULL  uuid_generate_v4()
+  user_id     UUID              NOT NULL  
+  project_id  UUID              null      
+  type        VARCHAR(50)       NOT NULL  
+  message     TEXT              NOT NULL  
+  is_read     BOOLEAN           NOT NULL  false
+  created_at  TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] notifications_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [FOREIGN KEY] notifications_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    [PRIMARY KEY] notifications_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_notifications_user: ON notifications USING btree (user_id, is_read)
+
+------------------------------------------------------------------------------
+ TABLE project_links   (0 rows)
+------------------------------------------------------------------------------
+  Column      Type              Null?     Default / notes
+  ----------- ----------------- --------- ------------------------------
+  id          UUID              NOT NULL  uuid_generate_v4()
+  project_id  UUID              NOT NULL  
+  link_type   VARCHAR(20)       NOT NULL  'OTHER'::character varying
+  label       VARCHAR(200)      NOT NULL  
+  url         TEXT              NOT NULL  
+  created_by  UUID              null      
+  created_at  TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [CHECK] project_links_link_type_check: CHECK (((link_type)::text = ANY ((ARRAY['GITHUB'::character varying, 'CONFLUENCE'::character varying, 'JIRA'::character varying, 'REPORT'::character varying, 'DEMO'::character varying, 'OTHER'::character varying])::text[])))
+    [FOREIGN KEY] project_links_created_by_fkey: FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] project_links_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] project_links_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_project_links_project: ON project_links USING btree (project_id)
+
+------------------------------------------------------------------------------
+ TABLE project_members   (0 rows)
+------------------------------------------------------------------------------
+  Column           Type              Null?     Default / notes
+  ---------------- ----------------- --------- ------------------------------
+  id               INTEGER           NOT NULL  nextval('project_members_id_seq'::regclass)
+  project_id       UUID              NOT NULL  
+  user_id          UUID              null      
+  student_name     VARCHAR(200)      null      
+  role_on_project  VARCHAR(60)       NOT NULL  'STUDENT'::character varying
+  created_at       TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] project_members_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [FOREIGN KEY] project_members_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] project_members_pkey: PRIMARY KEY (id)
+
+------------------------------------------------------------------------------
+ TABLE project_students   (24 rows)
+------------------------------------------------------------------------------
+  Column      Type              Null?     Default / notes
+  ----------- ----------------- --------- ------------------------------
+  id          UUID              NOT NULL  uuid_generate_v4()
+  project_id  UUID              NOT NULL  
+  slot        SMALLINT          NOT NULL  
+  name        VARCHAR(200)      NOT NULL  
+  srn         VARCHAR(20)       NOT NULL  
+  semester    SMALLINT          NOT NULL  
+  division    VARCHAR(10)       NOT NULL  
+  email       VARCHAR(60)       null      GENERATED ALWAYS AS ((lower((srn)::text) || '@kletech.ac.in'::text)) STORED
+  created_at  TIMESTAMPTZ       NOT NULL  now()
+  updated_at  TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [CHECK] project_students_semester_check: CHECK (((semester >= 5) AND (semester <= 8)))
+    [CHECK] project_students_slot_check: CHECK (((slot >= 1) AND (slot <= 5)))
+    [CHECK] project_students_srn_check: CHECK ((((srn)::text = upper((srn)::text)) AND ((srn)::text ~ '^[A-Z0-9]{6,20}$'::text)))
+    [FOREIGN KEY] project_students_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] project_students_pkey: PRIMARY KEY (id)
+    [UNIQUE] project_students_project_id_slot_key: UNIQUE (project_id, slot)
+    [UNIQUE] project_students_project_id_srn_key: UNIQUE (project_id, srn)
+
+  Indexes:
+    idx_project_students_project: ON project_students USING btree (project_id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE projects   (6 rows)
+------------------------------------------------------------------------------
+  Column                    Type              Null?     Default / notes
+  ------------------------- ----------------- --------- ------------------------------
+  id                        UUID              NOT NULL  uuid_generate_v4()
+  project_code              VARCHAR(40)       NOT NULL  
+  title                     VARCHAR(300)      NOT NULL  
+  institute_id              UUID              NOT NULL  
+  student_team_id           UUID              null      
+  mentor_user_id            UUID              null      
+  academic_year             VARCHAR(20)       null      
+  semester                  VARCHAR(20)       null      
+  start_date                DATE              null      
+  expected_completion_date  DATE              null      
+  need_statement            TEXT              null      
+  problem_statement         TEXT              null      
+  objective                 TEXT              null      
+  learning_outcomes         TEXT              null      
+  foundation_courses        TEXT              null      
+  functional_blocks         TEXT              null      
+  interfaces                TEXT              null      
+  dependencies              TEXT              null      
+  expected_deliverables     TEXT              null      
+  rag_status                VARCHAR(10)       NOT NULL  'GREEN'::character varying
+  rag_since                 TIMESTAMPTZ       NOT NULL  now()
+  completion_pct            SMALLINT          NOT NULL  0
+  last_review_at            TIMESTAMPTZ       null      
+  next_review_at            TIMESTAMPTZ       null      
+  last_update_at            TIMESTAMPTZ       NOT NULL  now()
+  project_phase             VARCHAR(30)       NOT NULL  'ACTIVE'::character varying
+  is_active                 BOOLEAN           NOT NULL  true
+  created_by                UUID              null      
+  created_at                TIMESTAMPTZ       NOT NULL  now()
+  updated_at                TIMESTAMPTZ       NOT NULL  now()
+  faculty_mentor_name       VARCHAR(200)      null      
+  coordinator_name          VARCHAR(200)      null      
+  reviewer_name             VARCHAR(200)      null      
+  team_id                   VARCHAR(20)       NOT NULL  format_seq_id('Team'::text, nextval('team_id_seq'::regclass))
+  artefact_id               VARCHAR(20)       NOT NULL  format_seq_id('Art'::text, nextval('artefact_id_seq'::regclass))
+  theme_name                VARCHAR(200)      null      
+  artefact_title            VARCHAR(300)      null      
+  department_id             INTEGER           NOT NULL  
+
+  Constraints:
+    [CHECK] chk_projects_academic_year: CHECK (((academic_year IS NULL) OR ((academic_year)::text ~ '^20(2[6-9]|[3-9][0-9])-[0-9]{2}$'::text)))
+    [CHECK] chk_projects_semester: CHECK (((semester IS NULL) OR ((semester)::text = ANY ((ARRAY['Sem-5'::character varying, 'Sem-6'::character varying, 'Sem-7'::character varying, 'Sem-8'::character varying])::text[]))))
+    [CHECK] projects_completion_pct_check: CHECK (((completion_pct >= 0) AND (completion_pct <= 100)))
+    [CHECK] projects_project_phase_check: CHECK (((project_phase)::text = ANY ((ARRAY['PLANNED'::character varying, 'ACTIVE'::character varying, 'ON_HOLD'::character varying, 'COMPLETED'::character varying, 'ARCHIVED'::character varying])::text[])))
+    [CHECK] projects_rag_status_check: CHECK (((rag_status)::text = ANY ((ARRAY['GREEN'::character varying, 'YELLOW'::character varying, 'RED'::character varying])::text[])))
+    [FOREIGN KEY] projects_created_by_fkey: FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] projects_department_id_fkey: FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT
+    [FOREIGN KEY] projects_institute_id_fkey: FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE RESTRICT
+    [FOREIGN KEY] projects_mentor_user_id_fkey: FOREIGN KEY (mentor_user_id) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] projects_student_team_id_fkey: FOREIGN KEY (student_team_id) REFERENCES student_teams(id) ON DELETE SET NULL
+    [PRIMARY KEY] projects_pkey: PRIMARY KEY (id)
+    [UNIQUE] projects_project_code_key: UNIQUE (project_code)
+
+  Indexes:
+    idx_projects_department: ON projects USING btree (department_id)
+    idx_projects_institute: ON projects USING btree (institute_id)
+    idx_projects_mentor: ON projects USING btree (mentor_user_id)
+    idx_projects_rag: ON projects USING btree (rag_status)
+    uq_projects_artefact_id: UNIQUE ON projects USING btree (artefact_id)
+    uq_projects_team_id: UNIQUE ON projects USING btree (team_id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE reviews   (0 rows)
+------------------------------------------------------------------------------
+  Column              Type              Null?     Default / notes
+  ------------------- ----------------- --------- ------------------------------
+  id                  UUID              NOT NULL  uuid_generate_v4()
+  project_id          UUID              NOT NULL  
+  reviewer_user_id    UUID              null      
+  review_date         TIMESTAMPTZ       NOT NULL  now()
+  comments            TEXT              null      
+  decision            VARCHAR(30)       null      
+  recommended_status  VARCHAR(10)       null      
+  next_review_at      TIMESTAMPTZ       null      
+  created_at          TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [CHECK] reviews_recommended_status_check: CHECK (((recommended_status)::text = ANY ((ARRAY['GREEN'::character varying, 'YELLOW'::character varying, 'RED'::character varying])::text[])))
+    [FOREIGN KEY] reviews_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [FOREIGN KEY] reviews_reviewer_user_id_fkey: FOREIGN KEY (reviewer_user_id) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] reviews_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_reviews_project: ON reviews USING btree (project_id)
+
+------------------------------------------------------------------------------
+ TABLE roles   (9 rows)
+------------------------------------------------------------------------------
+  Column       Type              Null?     Default / notes
+  ------------ ----------------- --------- ------------------------------
+  id           INTEGER           NOT NULL  nextval('roles_id_seq'::regclass)
+  code         VARCHAR(40)       NOT NULL  
+  name         VARCHAR(100)      NOT NULL  
+  description  TEXT              null      
+
+  Constraints:
+    [PRIMARY KEY] roles_pkey: PRIMARY KEY (id)
+    [UNIQUE] roles_code_key: UNIQUE (code)
+
+------------------------------------------------------------------------------
+ TABLE schema_migrations   (1 rows)
+------------------------------------------------------------------------------
+  Column      Type              Null?     Default / notes
+  ----------- ----------------- --------- ------------------------------
+  name        VARCHAR(80)       NOT NULL  
+  applied_at  TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [PRIMARY KEY] schema_migrations_pkey: PRIMARY KEY (name)
+
+------------------------------------------------------------------------------
+ TABLE status_history   (7 rows)
+------------------------------------------------------------------------------
+  Column           Type              Null?     Default / notes
+  ---------------- ----------------- --------- ------------------------------
+  id               UUID              NOT NULL  uuid_generate_v4()
+  project_id       UUID              NOT NULL  
+  previous_status  VARCHAR(10)       null      
+  new_status       VARCHAR(10)       NOT NULL  
+  reason           TEXT              null      
+  evidence         TEXT              null      
+  changed_by       UUID              null      
+  approved_by      UUID              null      
+  created_at       TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [CHECK] status_history_new_status_check: CHECK (((new_status)::text = ANY ((ARRAY['GREEN'::character varying, 'YELLOW'::character varying, 'RED'::character varying])::text[])))
+    [CHECK] status_history_previous_status_check: CHECK (((previous_status)::text = ANY ((ARRAY['GREEN'::character varying, 'YELLOW'::character varying, 'RED'::character varying])::text[])))
+    [FOREIGN KEY] status_history_approved_by_fkey: FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] status_history_changed_by_fkey: FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
+    [FOREIGN KEY] status_history_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [PRIMARY KEY] status_history_pkey: PRIMARY KEY (id)
+
+  Indexes:
+    idx_status_history_project: ON status_history USING btree (project_id)
+
+------------------------------------------------------------------------------
+ TABLE student_teams   (0 rows)
+------------------------------------------------------------------------------
+  Column         Type              Null?     Default / notes
+  -------------- ----------------- --------- ------------------------------
+  id             UUID              NOT NULL  uuid_generate_v4()
+  name           VARCHAR(200)      NOT NULL  
+  created_at     TIMESTAMPTZ       NOT NULL  now()
+  updated_at     TIMESTAMPTZ       NOT NULL  now()
+  department_id  INTEGER           NOT NULL  
+
+  Constraints:
+    [FOREIGN KEY] student_teams_department_id_fkey: FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE
+    [PRIMARY KEY] student_teams_pkey: PRIMARY KEY (id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE support_requests   (0 rows)
+------------------------------------------------------------------------------
+  Column        Type              Null?     Default / notes
+  ------------- ----------------- --------- ------------------------------
+  id            UUID              NOT NULL  uuid_generate_v4()
+  project_id    UUID              NOT NULL  
+  requested_by  UUID              null      
+  support_type  VARCHAR(40)       NOT NULL  'GENERAL'::character varying
+  description   TEXT              NOT NULL  
+  status        VARCHAR(20)       NOT NULL  'OPEN'::character varying
+  created_at    TIMESTAMPTZ       NOT NULL  now()
+  updated_at    TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [CHECK] support_requests_status_check: CHECK (((status)::text = ANY ((ARRAY['OPEN'::character varying, 'IN_PROGRESS'::character varying, 'RESOLVED'::character varying])::text[])))
+    [CHECK] support_requests_support_type_check: CHECK (((support_type)::text = ANY ((ARRAY['TECHNICAL'::character varying, 'INSTITUTIONAL'::character varying, 'INDUSTRY'::character varying, 'GENERAL'::character varying])::text[])))
+    [FOREIGN KEY] support_requests_project_id_fkey: FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+    [FOREIGN KEY] support_requests_requested_by_fkey: FOREIGN KEY (requested_by) REFERENCES users(id) ON DELETE SET NULL
+    [PRIMARY KEY] support_requests_pkey: PRIMARY KEY (id)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+------------------------------------------------------------------------------
+ TABLE user_department_access   (4 rows)
+------------------------------------------------------------------------------
+  Column         Type              Null?     Default / notes
+  -------------- ----------------- --------- ------------------------------
+  id             INTEGER           NOT NULL  nextval('user_department_access_id_seq'::regclass)
+  user_id        UUID              NOT NULL  
+  created_at     TIMESTAMPTZ       NOT NULL  now()
+  department_id  INTEGER           NOT NULL  
+
+  Constraints:
+    [FOREIGN KEY] user_department_access_department_id_fkey: FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE CASCADE
+    [FOREIGN KEY] user_department_access_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    [PRIMARY KEY] user_department_access_pkey: PRIMARY KEY (id)
+    [UNIQUE] user_department_access_user_id_department_id_key: UNIQUE (user_id, department_id)
+
+------------------------------------------------------------------------------
+ TABLE user_institute_access   (19 rows)
+------------------------------------------------------------------------------
+  Column        Type              Null?     Default / notes
+  ------------- ----------------- --------- ------------------------------
+  id            INTEGER           NOT NULL  nextval('user_institute_access_id_seq'::regclass)
+  user_id       UUID              NOT NULL  
+  institute_id  UUID              NOT NULL  
+  created_at    TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] user_institute_access_institute_id_fkey: FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+    [FOREIGN KEY] user_institute_access_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    [PRIMARY KEY] user_institute_access_pkey: PRIMARY KEY (id)
+    [UNIQUE] user_institute_access_user_id_institute_id_key: UNIQUE (user_id, institute_id)
+
+------------------------------------------------------------------------------
+ TABLE user_roles   (31 rows)
+------------------------------------------------------------------------------
+  Column      Type              Null?     Default / notes
+  ----------- ----------------- --------- ------------------------------
+  id          INTEGER           NOT NULL  nextval('user_roles_id_seq'::regclass)
+  user_id     UUID              NOT NULL  
+  role_id     INTEGER           NOT NULL  
+  created_at  TIMESTAMPTZ       NOT NULL  now()
+
+  Constraints:
+    [FOREIGN KEY] user_roles_role_id_fkey: FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE RESTRICT
+    [FOREIGN KEY] user_roles_user_id_fkey: FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    [PRIMARY KEY] user_roles_pkey: PRIMARY KEY (id)
+    [UNIQUE] user_roles_user_id_role_id_key: UNIQUE (user_id, role_id)
+
+------------------------------------------------------------------------------
+ TABLE users   (31 rows)
+------------------------------------------------------------------------------
+  Column         Type              Null?     Default / notes
+  -------------- ----------------- --------- ------------------------------
+  id             UUID              NOT NULL  uuid_generate_v4()
+  email          VARCHAR(255)      NOT NULL  
+  password_hash  VARCHAR(255)      NOT NULL  
+  full_name      VARCHAR(200)      NOT NULL  
+  is_active      BOOLEAN           NOT NULL  true
+  last_login_at  TIMESTAMPTZ       null      
+  created_at     TIMESTAMPTZ       NOT NULL  now()
+  updated_at     TIMESTAMPTZ       NOT NULL  now()
+  srn            VARCHAR(20)       null      
+
+  Constraints:
+    [PRIMARY KEY] users_pkey: PRIMARY KEY (id)
+    [UNIQUE] users_email_key: UNIQUE (email)
+
+  Indexes:
+    uq_users_srn: UNIQUE ON users USING btree (srn) WHERE (srn IS NOT NULL)
+
+  Triggers:
+    trg_set_updated_at (BEFORE)
+
+==============================================================================
+ SEQUENCES
+==============================================================================
+  artefact_id_seq          start 1, step 1
+  audit_logs_id_seq        start 1, step 1
+  departments_id_seq       start 1, step 1
+  project_members_id_seq   start 1, step 1
+  roles_id_seq             start 1, step 1
+  team_id_seq              start 1, step 1
+  user_department_access_id_seq start 1, step 1
+  user_institute_access_id_seq start 1, step 1
+  user_roles_id_seq        start 1, step 1
+
+==============================================================================
+ FUNCTIONS
+==============================================================================
+  format_seq_id(prefix text, n bigint) -> text
+  set_department_code() -> trigger
+  set_updated_at() -> trigger
+
+==============================================================================
+ NOTES
+==============================================================================
+  * Hierarchy: institutes -> departments -> projects. There is no schools table any more.
+  * departments.id is an integer (sequence departments_id_seq); departments.code is generated by
+    trigger trg_department_code as Dept-<id> when not supplied (never typed by users).
+  * A Dean / Department Head sees only the departments in user_department_access (a college-wide
+    grant in user_institute_access only says which college they belong to).
+  * Team ID (Team-n) and Artefact ID (Art-n) on projects come from sequences team_id_seq / artefact_id_seq.
+  * project_students holds 4 or 5 students per project (slot 1-5); no mobile number is stored.
+    project_students.email is a generated column: lower(srn) || '@kletech.ac.in'.
+  * users.srn is set only for student accounts (login = SRN, created from project teams).
+  * uq_project_students_srn (one SRN, one team) is added by db:init once no SRN is repeated in old data.
+  * projects.start_date / expected_completion_date are no longer used by the application.
+  * updated_at is maintained by trigger trg_set_updated_at on the main tables.

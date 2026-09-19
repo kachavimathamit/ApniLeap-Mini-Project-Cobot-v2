@@ -1,0 +1,333 @@
+:root {
+  --al-primary: #1a3c6e;
+  --al-primary-dark: #12294d;
+  --al-bg: #f5f6f8;
+  --al-surface: #ffffff;
+  --al-border: #d9dee5;
+  --al-text: #101214;
+  --al-text-muted: #454b52;
+
+  --al-green: #1e7e34;
+  --al-green-bg: #e6f4ea;
+  --al-yellow: #7a5600;
+  --al-yellow-bg: #fff6df;
+  --al-red: #b02a2a;
+  --al-red-bg: #fbe9e9;
+
+  --al-radius: 6px;
+
+  /* Solid colours for the status circles used across the app */
+  --al-dot-green: #2b8a3e;
+  --al-dot-yellow: #c98500;
+  --al-dot-red: #d32f2f;
+
+  /* Bootstrap's default link blue (#0d6efd) is only ~4:1 on our light
+     backgrounds; a deeper blue keeps every link comfortably above WCAG AA. */
+  --bs-link-color: #0a4db0;
+  --bs-link-color-rgb: 10, 77, 176;
+  --bs-link-hover-color: #073a85;
+  --bs-link-hover-color-rgb: 7, 58, 133;
+}
+
+/* Secondary outline buttons: default grey text is ~4.3:1; use a darker tone. */
+.btn-outline-secondary {
+  --bs-btn-color: #3b4148;
+  --bs-btn-border-color: #7d858d;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #3b4148;
+  --bs-btn-hover-border-color: #3b4148;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #2b3036;
+  --bs-btn-active-border-color: #2b3036;
+  --bs-btn-disabled-color: #5f666d;
+  --bs-btn-disabled-border-color: #b5bac0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-size: 15px;
+  color: var(--al-text);
+  background-color: var(--al-bg);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5 { font-weight: 600; color: var(--al-text); }
+
+/* Bootstrap's default .text-muted is too light against our white cards;
+   darken it app-wide so every "Unassigned" / "Not documented" label stays
+   clearly readable rather than washed out. */
+.text-muted { color: var(--al-text-muted) !important; }
+
+/* ---------- Top navigation ---------- */
+.al-navbar {
+  background-color: var(--al-primary);
+  padding: 0.55rem 1.25rem;
+}
+.al-navbar .al-brand {
+  font-size: 19px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+}
+.al-navbar .al-brand span { color: #b9d0f0; }
+.al-navbar .nav-link {
+  color: #dbe6f5;
+  font-size: 14.5px;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+}
+.al-navbar .nav-link:hover { color: #fff; background-color: rgba(255,255,255,0.08); }
+.al-navbar .nav-link.active { color: #fff; background-color: rgba(255,255,255,0.16); }
+
+.al-navbar .navbar-toggler {
+  border-color: rgba(255,255,255,0.4);
+  padding: 0.25rem 0.5rem;
+}
+.al-navbar .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+@media (max-width: 1199.98px) {
+  .al-navbar .navbar-collapse {
+    background-color: var(--al-primary-dark);
+    margin: 0.6rem -1.25rem -0.55rem;
+    padding: 0.5rem 1.25rem 0.75rem;
+  }
+  .al-navbar .nav-link { padding: 0.55rem 0.4rem; }
+  .al-navbar .al-user-chip { margin-top: 0.5rem; }
+}
+.al-navbar .al-user-chip {
+  color: #eef3fb;
+  font-size: 13.5px;
+  background-color: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 0.35rem 0.7rem;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Page shell ---------- */
+.al-page {
+  padding: 1rem 1.5rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.al-page-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.al-page-title { font-size: 26px; margin: 0; }
+.al-page-subtitle { font-size: 13.5px; color: var(--al-text-muted); margin: 0; }
+
+/* ---------- Cards ---------- */
+.al-card {
+  background-color: var(--al-surface);
+  border: 1px solid var(--al-border);
+  border-radius: var(--al-radius);
+  padding: 0.9rem 1rem;
+}
+.al-card h2, .al-card h3 { font-size: 18px; margin-bottom: 0.6rem; }
+
+.al-stat-card {
+  background-color: var(--al-surface);
+  border: 1px solid var(--al-border);
+  border-left: 4px solid var(--al-primary);
+  border-radius: var(--al-radius);
+  padding: 0.7rem 0.9rem;
+  height: 100%;
+}
+.al-stat-card .al-stat-label {
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--al-text-muted);
+  margin-bottom: 0.15rem;
+}
+.al-stat-card .al-stat-value { font-size: 26px; font-weight: 700; line-height: 1.1; }
+.al-stat-card.is-green { border-left-color: var(--al-dot-green); }
+.al-stat-card.is-yellow { border-left-color: var(--al-dot-yellow); }
+.al-stat-card.is-red { border-left-color: var(--al-dot-red); }
+
+/* ---------- RAG status badges (never colour alone) ---------- */
+.al-rag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.al-rag .al-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.al-rag.rag-green { color: var(--al-green); background-color: var(--al-green-bg); }
+.al-rag.rag-green .al-dot { background-color: var(--al-green); }
+.al-rag.rag-yellow { color: var(--al-yellow); background-color: var(--al-yellow-bg); }
+.al-rag.rag-yellow .al-dot { background-color: var(--al-yellow); }
+.al-rag.rag-red { color: var(--al-red); background-color: var(--al-red-bg); }
+.al-rag.rag-red .al-dot { background-color: var(--al-red); }
+
+/* ---------- Institutes page: status counts as coloured icons ---------- */
+.al-inst-counts { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem 1.75rem; }
+.al-inst-total { display: flex; flex-direction: column; line-height: 1.1; }
+.al-inst-total .al-inst-cap { font-size: 14px; color: var(--al-text-muted); margin-top: 0.2rem; }
+.al-inst-num { font-size: 32px; font-weight: 700; color: var(--al-text); line-height: 1; }
+.al-inst-rag { display: flex; align-items: center; gap: 0.75rem; }
+.al-inst-icon { display: inline-flex; width: 30px; height: 30px; flex: none; border-radius: 50%; }
+.al-inst-icon svg { width: 100%; height: 100%; display: block; }
+/* solid coloured circle + soft tinted ring of the same hue */
+.al-inst-rag.rag-green .al-inst-icon { color: var(--al-dot-green); box-shadow: 0 0 0 4px rgba(43, 138, 62, 0.16); }
+.al-inst-rag.rag-yellow .al-inst-icon { color: var(--al-dot-yellow); box-shadow: 0 0 0 4px rgba(201, 133, 0, 0.18); }
+.al-inst-rag.rag-red .al-inst-icon { color: var(--al-dot-red); box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.16); }
+
+/* ---------- Status circle used in tables, headers and stat cards ---------- */
+.al-rag-dot {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  vertical-align: middle;
+  box-shadow: 0 0 0 3px var(--dot-ring);
+}
+.al-rag-dot.lg { width: 26px; height: 26px; box-shadow: 0 0 0 4px var(--dot-ring); }
+.al-rag-dot.rag-green { background: var(--al-dot-green); --dot-ring: rgba(43, 138, 62, 0.16); }
+.al-rag-dot.rag-yellow { background: var(--al-dot-yellow); --dot-ring: rgba(201, 133, 0, 0.18); }
+.al-rag-dot.rag-red { background: var(--al-dot-red); --dot-ring: rgba(211, 47, 47, 0.16); }
+.al-table th .al-rag-dot { width: 14px; height: 14px; box-shadow: 0 0 0 3px var(--dot-ring); }
+.al-stat-card .al-stat-label { display: flex; align-items: center; min-height: 26px; }
+.al-stat-label .al-rag-dot { width: 20px; height: 20px; margin: 0 3px; }
+
+/* ---------- Tables ---------- */
+.al-table { font-size: 14.5px; margin-bottom: 0; }
+.al-table th {
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--al-text-muted);
+  font-weight: 600;
+  border-bottom-width: 1px;
+  white-space: nowrap;
+}
+.al-table td { vertical-align: middle; }
+
+/* ---------- Buttons ---------- */
+.btn-al-primary {
+  background-color: var(--al-primary);
+  border-color: var(--al-primary);
+  color: #fff;
+  font-size: 14.5px;
+}
+.btn-al-primary:hover { background-color: var(--al-primary-dark); border-color: var(--al-primary-dark); color: #fff; }
+
+/* ---------- Login page ---------- */
+.al-login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #eef2f7 0%, #e4e9f0 100%);
+  padding: 1rem;
+}
+.al-login-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--al-surface);
+  border: 1px solid var(--al-border);
+  border-radius: 10px;
+  padding: 2.75rem 2.75rem 2.5rem;
+}
+.al-login-brand { font-size: 36px; font-weight: 700; color: var(--al-primary); margin-bottom: 0.25rem; line-height: 1.15; }
+.al-login-tagline { font-size: 17px; color: var(--al-text-muted); margin-bottom: 2rem; }
+.al-login-card .form-label { font-size: 16px; font-weight: 500; margin-bottom: 0.4rem; }
+.al-login-card .form-control { font-size: 17px; padding: 0.75rem 0.9rem; }
+.al-login-card .mb-3 { margin-bottom: 1.4rem !important; }
+.al-login-card .btn-al-primary { font-size: 17px; font-weight: 600; padding: 0.8rem 1rem; margin-top: 0.4rem; }
+.al-login-error {
+  font-size: 15px;
+  color: var(--al-red);
+  background-color: var(--al-red-bg);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  margin-top: 0.9rem;
+  display: none;
+}
+
+/* ---------- Tabs (project dashboard) ---------- */
+#projectTabs .nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--al-text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 0.9rem;
+}
+#projectTabs .nav-link.active {
+  color: var(--al-primary);
+  border-bottom-color: var(--al-primary);
+  background: none;
+}
+
+/* ---------- Info callout (distinct from the red error box) ---------- */
+.al-callout {
+  font-size: 13.5px;
+  color: var(--al-primary-dark);
+  background-color: #eaf0fa;
+  border: 1px solid #cddaf0;
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+}
+
+.al-definition-row dt { font-size: 12.5px; color: var(--al-text-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 0.6rem; }
+.al-definition-row dd { font-size: 14.5px; margin-bottom: 0; white-space: pre-wrap; }
+
+@media print {
+  .al-navbar, #btnExportCsv, #btnPrint { display: none !important; }
+  .al-page { max-width: 100%; padding: 0; }
+  .al-card { break-inside: avoid; border: 1px solid #ccc; }
+}
+
+@media (max-width: 575.98px) {
+  .al-login-card { padding: 1.75rem 1.25rem 1.5rem; }
+  .al-login-brand { font-size: 30px; }
+}
+
+@media (max-width: 768px) {
+  .al-page { padding: 0.75rem; }
+  .al-page-title { font-size: 22px; }
+}
+
+.al-group-row td { background: var(--al-bg); font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: var(--al-text-muted); }
+.al-role-line { font-size: 12.5px; color: var(--al-text-muted); }
+
+/* ---------- Four-student team form ---------- */
+.al-team-row { border: 1px solid var(--al-border); border-radius: var(--al-radius); padding: 0.75rem 0.9rem 0.85rem; margin-bottom: 0.75rem; background: #fbfcfd; }
+.al-team-title { font-weight: 600; margin-bottom: 0.45rem; }
+.al-team-row .form-label { font-size: 13px; margin-bottom: 0.2rem; color: var(--al-text-muted); }
+.al-team-email-label { font-size: 13px; color: var(--al-text-muted); }
+.al-team-email { font-size: 14px; font-weight: 500; word-break: break-all; }
+
+/* Auto-assigned values (Team ID, Artefact ID) are shown but cannot be edited. */
+.form-control[readonly] {
+  background-color: #eef1f5;
+  color: var(--al-text, #111827);
+  font-weight: 600;
+  cursor: default;
+}
+
+/* Inline code in help text: near-black for contrast. */
+code { color: var(--al-text); background: #eef1f5; padding: 1px 4px; border-radius: 3px; }
+
+/* Second row of tabs inside "Project Tracking". */
+.al-subtabs { gap: 6px; flex-wrap: wrap; }
+.al-subtabs .nav-link { color: var(--al-text); background: #eef1f5; border-radius: 999px; padding: 5px 14px; font-size: 13.5px; font-weight: 500; }
+.al-subtabs .nav-link:hover { background: #e2e7ee; }
+.al-subtabs .nav-link.active { background: var(--al-primary); color: #ffffff; }

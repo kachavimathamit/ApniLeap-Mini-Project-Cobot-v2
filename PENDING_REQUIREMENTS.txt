@@ -1,0 +1,16 @@
+=====================================================================
+ ApniLeap Portal - REQUIREMENTS STATUS
+=====================================================================
+All requirements that were queued for approval have been built and tested
+(2026-09-19):
+
+ 1. Departments only (no schools)              - built
+ 2. Dean / Head access by department           - built
+ 3. Users tab search (Organization/Role/Details) - built
+ 4. Automatic department ID and code           - built
+ 5. Start / Expected Completion removed        - built
+ 6. Teams of 4-5 students, no mobile number    - built
+
+Later changes: CSV bulk project upload, Overview/Team layout, Projects search
+filters, Cobot tab, completion % in Update Status, Projects/Issues/Reviews as
+Reports tabs, Project Tracking tab. See README.md for the full feature list.

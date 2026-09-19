@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Secrets and local configuration - never commit
+.env
+.env.*
+!.env.example
+
+# Database dumps and backups (contain real people's data and password hashes)
+backend/db/backup_*.sql
+*.dump
+*.bak
+
+# Logs and local tooling
+*.log
+.claude/

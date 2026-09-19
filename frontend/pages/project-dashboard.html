@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Dashboard | ApniLeap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="al-navbar navbar navbar-expand-xl">
+  <a class="al-brand" href="dashboard.html">APNI<span>LEAP</span></a>
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navMain">
+    <div class="d-flex flex-column flex-xl-row">
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <a class="nav-link active" href="institutes.html">Institutes</a>
+      <a class="nav-link" href="reports.html">Reports</a>
+      <a class="nav-link d-none" id="navAdmin" href="administration.html">Administration</a>
+    </div>
+    <div class="d-flex align-items-center gap-2 ms-xl-auto mt-2 mt-xl-0">
+      <span class="al-user-chip" id="userChip">&nbsp;</span>
+      <button class="btn btn-sm btn-outline-light" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="al-page">
+  <p class="al-page-subtitle mb-0" id="breadcrumb">…</p>
+
+  <!-- Project identity + RAG + primary actions, all above the fold -->
+  <div class="al-card mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+      <div>
+        <h1 class="al-page-title mb-1" id="projectTitle">Loading project…</h1>
+        <div class="d-flex flex-wrap gap-3 align-items-center" style="font-size:13.5px" id="projectMeta"></div>
+      </div>
+      <div class="text-end">
+        <div id="ragBadgeWrap" class="mb-2"></div>
+        <div style="min-width:180px">
+          <div class="d-flex justify-content-between align-items-center" style="font-size:12.5px;color:var(--al-text-muted)">
+            <span>Completion</span>
+            <span>
+              <span id="completionLabel">0%</span>
+            </span>
+          </div>
+          <div class="progress" style="height:8px">
+            <div class="progress-bar bg-primary" id="completionBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-al-primary btn-sm" id="btnUpdateStatus">Update Status</button>
+      <button class="btn btn-outline-secondary btn-sm" id="btnAddIssue">Add Issue</button>
+      <button class="btn btn-outline-secondary btn-sm" id="btnAddAction">Add Corrective Action</button>
+      <button class="btn btn-outline-secondary btn-sm" id="btnAddReview">Add Review</button>
+    </div>
+  </div>
+
+  <!-- Tabs keep the considerable project detail out of one long scroll (rule 9) -->
+  <ul class="nav nav-tabs mb-3" id="projectTabs">
+    <li class="nav-item"><button class="nav-link active" data-tab="overview">Overview</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="cobot">Cobot</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="tracking">Project Tracking</button></li>
+  </ul>
+
+  <!-- Overview -->
+  <div class="tab-pane" id="tab-overview">
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <div class="al-card h-100">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="mb-0">Execution</h2>
+            <button class="btn btn-outline-secondary btn-sm d-none" id="btnEditDetails">Edit Details</button>
+          </div>
+          <table class="table al-table table-borderless mb-0" id="overviewExecutionTable"></table>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="al-card h-100">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="mb-0">Student Team <span class="text-muted" style="font-size:14px;font-weight:400">(4-5 students)</span></h2>
+            <button class="btn btn-al-primary btn-sm d-none" id="btnEditTeam">Edit Team</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table al-table">
+              <thead><tr><th>#</th><th>Name</th><th>SRN</th></tr></thead>
+              <tbody id="teamBody"><tr><td colspan="3" class="text-muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+          <p class="text-muted mb-0" id="teamNote" style="font-size:13px"></p>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="al-card h-100">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="mb-0">Jira &amp; Confluence</h2>
+            <button class="btn btn-outline-secondary btn-sm d-none" id="btnSyncIntegrations">Sync Now</button>
+          </div>
+          <div id="integrationStatus" class="text-muted" style="font-size:13.5px">Loading…</div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="al-card h-100">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="mb-0">Links</h2>
+            <button class="btn btn-outline-secondary btn-sm" id="btnAddLink">Add Link</button>
+          </div>
+          <div id="linksList" class="text-muted">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cobot (content to be added) -->
+  <div class="tab-pane d-none" id="tab-cobot">
+    <div class="al-card">
+      <h2>Cobot</h2>
+      <p class="text-muted mb-0">Details for this tab will be added later.</p>
+    </div>
+  </div>
+
+  <div class="tab-pane d-none" id="tab-tracking">
+    <ul class="nav nav-pills al-subtabs mb-3" id="trackingTabs">
+      <li class="nav-item"><button class="nav-link active" data-sub="definition">Definition</button></li>
+      <li class="nav-item"><button class="nav-link" data-sub="milestones">Milestones</button></li>
+      <li class="nav-item"><button class="nav-link" data-sub="kpis">KPIs</button></li>
+      <li class="nav-item"><button class="nav-link" data-sub="challenges">Challenges</button></li>
+      <li class="nav-item"><button class="nav-link" data-sub="actions">Actions</button></li>
+      <li class="nav-item"><button class="nav-link" data-sub="reviews">Reviews</button></li>
+      <li class="nav-item"><button class="nav-link" data-sub="documentation">Documentation</button></li>
+    </ul>
+
+  <!-- Definition -->
+  <div class="sub-pane" id="tab-definition">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Project Definition</h2>
+        <button class="btn btn-outline-secondary btn-sm" id="btnEditDefinition">Edit</button>
+      </div>
+      <div id="definitionView"></div>
+      <form id="definitionForm" class="d-none"></form>
+    </div>
+  </div>
+
+  <!-- Milestones -->
+  <div class="sub-pane d-none" id="tab-milestones">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Milestones</h2>
+        <button class="btn btn-al-primary btn-sm" id="btnAddMilestone">Add Milestone</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>Milestone</th><th>Due Date</th><th>Status</th><th></th></tr></thead>
+          <tbody id="milestonesBody"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="sub-pane d-none" id="tab-kpis">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">KPIs</h2>
+        <button class="btn btn-al-primary btn-sm" id="btnAddKpi">Add KPI</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>KPI</th><th>Target</th><th>Latest Measurement</th><th>Owner</th><th></th></tr></thead>
+          <tbody id="kpisBody"><tr><td colspan="5" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenges (issues) -->
+  <div class="sub-pane d-none" id="tab-challenges">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Challenges</h2>
+        <button class="btn btn-al-primary btn-sm" id="btnAddIssue2">Add Issue</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>Issue</th><th>Root Cause / Impact</th><th>Escalation</th><th>Status</th></tr></thead>
+          <tbody id="issuesBody"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Corrective actions -->
+  <div class="sub-pane d-none" id="tab-actions">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Corrective Actions</h2>
+        <button class="btn btn-al-primary btn-sm" id="btnAddAction2">Add Corrective Action</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>Action</th><th>Owner</th><th>Due Date</th><th>Status</th><th></th></tr></thead>
+          <tbody id="actionsBody"><tr><td colspan="5" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="sub-pane d-none" id="tab-reviews">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Review History</h2>
+        <button class="btn btn-al-primary btn-sm" id="btnAddReview2">Add Review</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>Date</th><th>Reviewer</th><th>Comments</th><th>Decision</th><th>Recommended</th></tr></thead>
+          <tbody id="reviewsBody"><tr><td colspan="5" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="al-card mt-3">
+      <h2>Status Change History</h2>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>Date</th><th>Change</th><th>Reason</th><th>Changed By</th><th>Approved By</th></tr></thead>
+          <tbody id="historyBody"><tr><td colspan="5" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documentation -->
+  <div class="sub-pane d-none" id="tab-documentation">
+    <div class="al-card">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="mb-0">Documentation &amp; Links</h2>
+        <button class="btn btn-al-primary btn-sm" id="btnAddLink2">Add Link</button>
+      </div>
+      <div class="al-callout mb-3" id="documentationIntegration">Loading Confluence and Jira links…</div>
+      <p class="text-muted" style="font-size:13.5px">Project documentation (requirements, architecture, review notes, decisions and evidence) lives in Confluence. Record any additional links to source code, reports and evidence below.</p>
+      <div class="table-responsive">
+        <table class="table al-table">
+          <thead><tr><th>Type</th><th>Label</th><th>URL</th><th>Added</th></tr></thead>
+          <tbody id="documentationLinksBody"><tr><td colspan="4" class="text-muted">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<!-- ===================== Modals ===================== -->
+
+<div class="modal fade" id="teamModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Edit Student Team</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p class="text-muted" style="font-size:13.5px">A project has 4 students and may have a 5th. Each student's email is set automatically from the SRN.</p>
+        <div id="teamFormBody"></div>
+        <div class="al-login-error" id="teamError"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="teamSubmit">Save Team</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="detailsModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Edit Project Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="row g-2 mb-2">
+          <div class="col-6"><label class="form-label" for="detailsTeamId">Team ID</label><input class="form-control" id="detailsTeamId" readonly tabindex="-1"></div>
+          <div class="col-6"><label class="form-label" for="detailsArtefactId">Artefact ID</label><input class="form-control" id="detailsArtefactId" readonly tabindex="-1"></div>
+        </div>
+        <div class="mb-2"><label class="form-label" for="detailsTheme">Theme Name</label><input class="form-control" id="detailsTheme" maxlength="200" autocomplete="off"></div>
+        <div class="mb-2"><label class="form-label" for="detailsArtefactTitle">Artefact Title</label><input class="form-control" id="detailsArtefactTitle" maxlength="300" autocomplete="off"></div>
+        <div class="mb-2"><label class="form-label" for="detailsMentor">Faculty Mentor Name</label>
+          <input class="form-control" id="detailsMentor" list="detailsStaffNames" maxlength="200" autocomplete="off"></div>
+        <div class="mb-2"><label class="form-label" for="detailsCoordinator">Project Coordinator Name</label>
+          <input class="form-control" id="detailsCoordinator" list="detailsStaffNames" maxlength="200" autocomplete="off"></div>
+        <div class="mb-2"><label class="form-label" for="detailsReviewer">Reviewer Name</label>
+          <input class="form-control" id="detailsReviewer" list="detailsStaffNames" maxlength="200" autocomplete="off"></div>
+        <datalist id="detailsStaffNames"></datalist>
+        <div class="row g-2">
+          <div class="col-6"><label class="form-label" for="detailsYear">Academic Year</label><select class="form-select" id="detailsYear"></select></div>
+          <div class="col-6"><label class="form-label" for="detailsSemester">Semester</label><select class="form-select" id="detailsSemester"></select></div>
+        </div>
+        <div class="al-login-error" id="detailsError"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="detailsSubmit">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="completeActionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Mark Corrective Action Completed</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="completeActionForm">
+          <input type="hidden" id="completeActionId">
+          <div class="mb-2"><label class="form-label">Evidence of completion</label><textarea class="form-control" id="completeActionEvidence" rows="3" required></textarea></div>
+          <div class="al-login-error" id="completeActionError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="completeActionSubmit">Mark Completed</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="statusModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Project Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="statusForm">
+          <div class="row g-2 mb-3">
+            <div class="col-md-8">
+              <label class="form-label" for="statusNewStatus">New Status</label>
+              <select class="form-select" id="statusNewStatus"></select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="statusCompletion">Completion %</label>
+              <input type="number" class="form-control" id="statusCompletion" min="0" max="100" step="1" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="statusReason">Reason <span class="text-muted" style="font-weight:400" id="statusReasonHint">(required for a status change)</span></label>
+            <textarea class="form-control" id="statusReason" rows="2"></textarea>
+          </div>
+
+          <div id="redIntervention" class="d-none">
+            <div class="al-callout mb-3">
+              Moving to Red requires a full intervention record (section 21 of the requirements).
+            </div>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="form-label">Blocker</label><textarea class="form-control" id="statusBlocker" rows="2"></textarea></div>
+              <div class="col-md-6"><label class="form-label">Root Cause</label><textarea class="form-control" id="statusRootCause" rows="2"></textarea></div>
+              <div class="col-md-6"><label class="form-label">Impact</label><textarea class="form-control" id="statusImpact" rows="2"></textarea></div>
+              <div class="col-md-6"><label class="form-label">Support Required</label><textarea class="form-control" id="statusSupportRequired" rows="2"></textarea></div>
+              <div class="col-md-12"><label class="form-label">Corrective Action Already Attempted</label><textarea class="form-control" id="statusCorrectiveAction" rows="2"></textarea></div>
+              <div class="col-md-4"><label class="form-label" for="statusActionOwner">Action Owner Name</label><input class="form-control" maxlength="200" autocomplete="off" id="statusActionOwner" placeholder="Type a name"></div>
+              <div class="col-md-4"><label class="form-label">Due Date</label><input type="date" class="form-control" id="statusDueDate"></div>
+              <div class="col-md-4"><label class="form-label" for="statusEscalationOwner">Escalation Owner Name</label><input class="form-control" maxlength="200" autocomplete="off" id="statusEscalationOwner" placeholder="Type a name"></div>
+              <div class="col-md-6"><label class="form-label">Next Review Date</label><input type="date" class="form-control" id="statusNextReview"></div>
+            </div>
+          </div>
+
+          <div id="redToGreen" class="d-none mt-2">
+            <div class="al-callout mb-3">
+              Red projects cannot return to Green without evidence of resolution and approval by an authorized reviewer. A corrective action on this project must already be marked Completed and Verified.
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Evidence of Resolution</label>
+              <textarea class="form-control" id="statusEvidence" rows="2"></textarea>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="statusReviewerApproval">
+              <label class="form-check-label" for="statusReviewerApproval">I am an authorized reviewer and I approve this Red-to-Green recovery.</label>
+            </div>
+          </div>
+
+          <div class="al-login-error" id="statusError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="statusSubmit">Save Status</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="issueModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add Issue / Challenge</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="issueForm">
+          <div class="mb-2"><label class="form-label">Title</label><input class="form-control" id="issueTitle" required></div>
+          <div class="mb-2"><label class="form-label">Root Cause</label><textarea class="form-control" id="issueRootCause" rows="2"></textarea></div>
+          <div class="mb-2"><label class="form-label">Impact</label><textarea class="form-control" id="issueImpact" rows="2"></textarea></div>
+          <div class="mb-2"><label class="form-label">Support Required</label><textarea class="form-control" id="issueSupportRequired" rows="2"></textarea></div>
+          <div class="al-login-error" id="issueError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="issueSubmit">Save Issue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="actionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add Corrective Action</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="actionForm">
+          <div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" id="actionDescription" rows="2" required></textarea></div>
+          <div class="mb-2"><label class="form-label" for="actionOwner">Owner Name</label><input class="form-control" maxlength="200" autocomplete="off" id="actionOwner" placeholder="Type the owner's name"></div>
+          <div class="mb-2"><label class="form-label">Due Date</label><input type="date" class="form-control" id="actionDueDate"></div>
+          <div class="mb-2"><label class="form-label">Evidence</label><textarea class="form-control" id="actionEvidence" rows="2"></textarea></div>
+          <div class="al-login-error" id="actionError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="actionSubmit">Save Action</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add Review</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="reviewForm">
+          <div class="mb-2"><label class="form-label">Comments</label><textarea class="form-control" id="reviewComments" rows="3" required></textarea></div>
+          <div class="mb-2"><label class="form-label">Decision</label><input class="form-control" id="reviewDecision" placeholder="e.g. Continue as planned"></div>
+          <div class="mb-2"><label class="form-label">Recommended Status</label>
+            <select class="form-select" id="reviewRecommendedStatus">
+              <option value="">No change recommended</option>
+              <option value="GREEN">Green</option>
+              <option value="YELLOW">Yellow</option>
+              <option value="RED">Red</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Next Review Date</label><input type="date" class="form-control" id="reviewNextDate"></div>
+          <div class="al-login-error" id="reviewError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="reviewSubmit">Save Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="milestoneModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add Milestone</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="milestoneForm">
+          <div class="mb-2"><label class="form-label">Title</label><input class="form-control" id="milestoneTitle" required></div>
+          <div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" id="milestoneDescription" rows="2"></textarea></div>
+          <div class="mb-2"><label class="form-label">Due Date</label><input type="date" class="form-control" id="milestoneDueDate"></div>
+          <div class="al-login-error" id="milestoneError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="milestoneSubmit">Save Milestone</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="kpiModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add KPI</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="kpiForm">
+          <div class="mb-2"><label class="form-label">Name</label><input class="form-control" id="kpiName" required></div>
+          <div class="mb-2"><label class="form-label">Target Value</label><input class="form-control" id="kpiTarget"></div>
+          <div class="mb-2"><label class="form-label">Unit</label><input class="form-control" id="kpiUnit"></div>
+          <div class="al-login-error" id="kpiError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="kpiSubmit">Save KPI</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="linkModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add Link</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="linkForm">
+          <div class="mb-2"><label class="form-label">Type</label>
+            <select class="form-select" id="linkType">
+              <option value="GITHUB">GitHub Repository</option>
+              <option value="CONFLUENCE">Confluence Page</option>
+              <option value="JIRA">Jira Project</option>
+              <option value="REPORT">Report</option>
+              <option value="DEMO">Demonstration</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Label</label><input class="form-control" id="linkLabel" placeholder="e.g. Source code repository" required></div>
+          <div class="mb-2"><label class="form-label">URL</label><input type="url" class="form-control" id="linkUrl" placeholder="https://..." required></div>
+          <div class="al-login-error" id="linkError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="linkSubmit">Save Link</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="measurementModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Add KPI Measurement</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="measurementForm">
+          <input type="hidden" id="measurementKpiId">
+          <div class="mb-2"><label class="form-label">Measured Value</label><input class="form-control" id="measurementValue" required></div>
+          <div class="mb-2"><label class="form-label">Evidence</label><textarea class="form-control" id="measurementEvidence" rows="2"></textarea></div>
+          <div class="al-login-error" id="measurementError"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-al-primary btn-sm" id="measurementSubmit">Save Measurement</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/academic.js"></script>
+<script src="../js/team-form.js"></script>
+<script src="../js/rag.js"></script>
+<script src="../js/project-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+=====================================================================
+ ApniLeap Portal - END-TO-END SAMPLE WALKTHROUGH (all 9 roles)
+=====================================================================
+Follow this top to bottom. Every value to type is given. All names,
+numbers and organisations below are fictitious sample data.
+
+You will: add an organisation -> create users for every role -> build
+Departments -> create projects with 4-5 student teams ->
+fill definition, milestones, KPIs -> raise an issue -> take a project
+to RED -> fix it (action, evidence, verification, review) -> return it
+to GREEN -> check what every role can and cannot do.
+
+---------------------------------------------------------------------
+ 0. BEFORE YOU START
+---------------------------------------------------------------------
+Start the server (from the backend folder):
+
+    npm run db:init
+    npm run db:seed        (only once; creates the built-in demo data)
+    npm start
+
+Open:  http://localhost:4000
+
+NOTE 1 - Jira/Confluence: if backend/.env has the Atlassian token, every
+project you create in Stage 6 also creates a REAL Jira issue (project
+KAN) and a REAL Confluence page (space APNI) on your Atlassian site.
+Delete them afterwards, or blank the Atlassian values in .env first if
+you do not want that.
+
+NOTE 2 - Log in with a different account for each stage. Use "Logout"
+(top right) between stages. Log in by typing the password yourself.
+
+NOTE 3 - Dates below are for late 2026. Any future dates work.
+
+Built-in accounts (password for all: Demo@12345)
+  platform.admin@apnileap.org      Platform Administrator
+  programme.leader@apnileap.org    Global Programme Leader
+
+---------------------------------------------------------------------
+ 1. THE CAST (accounts you will create in Stage 2 and 3)
+---------------------------------------------------------------------
+Organisation:  Code SIT   -  Sample Institute of Technology
+Temporary password for every new account:  Sample@12345
+                                           (min 8 characters)
+
+ Email                        Full Name                     Role (tick)                Institute
+ ---------------------------  ----------------------------  -------------------------  ---------
+ sit.admin@apnileap.org       Rohan Deshpande               Institute Administrator    SIT
+ sit.dean@apnileap.org        Dr. Meera Kulkarni            Dean/Principal             SIT
+ sit.hod.cse@apnileap.org     Dr. Anil Joshi                Department Head            SIT
+ sit.hod.ai@apnileap.org      Dr. Sunita Patil              Department Head            SIT
+ sit.mentor1@apnileap.org     Prof. Vikram Naik             Faculty Mentor             SIT
+ sit.mentor2@apnileap.org     Prof. Kavita Rao              Faculty Mentor             SIT
+ sit.reviewer@apnileap.org    Dr. Suresh Bhat               Reviewer/Success Coach     SIT
+ (no account to create)       Ananya Shetty (student)       Student - automatic        SIT
+ sit.readonly@apnileap.org    Mr. Prakash Iyer              Read-only Stakeholder      SIT
+
+Plus the two built-in global roles (Platform Administrator, Global
+Programme Leader) = all 9 roles.
+
+Who does what (enforced by the server):
+  Platform Administrator .... add institutes; everything else too
+  Institute Administrator ... users, departments of ITS institute
+  Dean / Dept Head / Mentor / Global Leader ... create projects, change
+                              status, milestones, KPIs, actions, team, links
+  Reviewer .................. add reviews; verify corrective actions
+                              (cannot change status)
+  Student ................... signs in with the SRN (default password Demo@12345);
+                              sees only their own team's project, read-only
+  Read-only Stakeholder ..... view only (cannot even add an issue)
+  Red -> Green approval ..... Dept Head, Dean, Institute Admin, Global
+                              Leader or Platform Admin (mentor cannot)
+
+---------------------------------------------------------------------
+ STAGE 1 - ADD THE ORGANISATION            (login: Platform Admin)
+---------------------------------------------------------------------
+Login:  platform.admin@apnileap.org  /  Demo@12345
+
+1. Top menu -> Administration -> tab "Institutes" -> [Add Institute]
+2. Code:  SIT
+   Name:  Sample Institute of Technology
+3. Save.
+Expected: SIT appears in the list. (Code is stored in upper case.)
+
+---------------------------------------------------------------------
+ STAGE 2 - CREATE THE INSTITUTE ADMINISTRATOR   (still Platform Admin)
+---------------------------------------------------------------------
+Administration -> tab "Users" -> [Add User]
+   Full Name:           Rohan Deshpande
+   Email:               sit.admin@apnileap.org
+   Temporary Password:  Sample@12345
+   Roles:               tick "Institute Administrator"
+   Institute Access:    tick "Sample Institute of Technology"
+Save.  Then Logout.
+
+---------------------------------------------------------------------
+ STAGE 3 - CREATE USERS FOR ALL OTHER ROLES   (login: Institute Admin)
+---------------------------------------------------------------------
+Login:  sit.admin@apnileap.org  /  Sample@12345
+
+Administration -> Users -> [Add User], once per row below. For each,
+tick the role shown AND Institute Access = Sample Institute of
+Technology. Password for all: Sample@12345
+
+  1. Dr. Meera Kulkarni   sit.dean@apnileap.org       Dean/Principal
+  2. Dr. Anil Joshi       sit.hod.cse@apnileap.org    Department Head
+  3. Dr. Sunita Patil     sit.hod.ai@apnileap.org     Department Head
+  4. Prof. Vikram Naik    sit.mentor1@apnileap.org    Faculty Mentor
+  5. Prof. Kavita Rao     sit.mentor2@apnileap.org    Faculty Mentor
+  6. Dr. Suresh Bhat      sit.reviewer@apnileap.org   Reviewer/Success Coach
+  7. Mr. Prakash Iyer     sit.readonly@apnileap.org   Read-only Stakeholder
+
+Students are NOT created here: each student on a project team gets a login
+automatically (see Stage 5 and Stage 7). The Add User form has no Student role.
+
+A Dean or Department Head with an account sees only the departments they are
+given (Stage 4 gives them access). In Stage 4 the Head can also be just a typed
+name; typing the name of someone who already has the Department Head role links
+their account and grants that department.
+
+Negative test (expect a refusal): try to add a user with the role
+"Platform Administrator" -> "not authorized to assign a platform-wide
+role". An Institute Admin cannot escalate.
+
+---------------------------------------------------------------------
+ STAGE 4 - DEPARTMENTS AND DEAN ACCESS      (still Institute Admin)
+---------------------------------------------------------------------
+Administration -> tab "Departments" -> [Add Department]. Only the NAME (and the
+Head's name) is typed; the department ID and code (Dept-<id>) are assigned by
+the system and shown in the "Code (automatic)" column.
+   Department 1:
+     Name: Computer Science and Engineering
+     Department Head Name: Dr. Anil Joshi        (pick sit.hod.cse or type it)
+   Department 2:
+     Name: Computer Science and Engineering (AI)
+     Department Head Name: Dr. Sunita Patil
+   Department 3:
+     Name: Electronics and Communication Engineering
+     Department Head Name: (leave empty)
+
+Give the Dean access to departments:
+  Administration -> Users -> search Role "Dean/Principal" (Organization: SIT) ->
+  Search -> [Department access] on Dr. Meera Kulkarni -> tick the departments ->
+  Save Access. (A Dean can have several departments; with none ticked the Dean
+  sees nothing.) Do the same for other Heads if you did not link them above.
+
+Users tab: nothing is listed until you press Search. Filter by Organization,
+Role and Details (name or email). Students never appear here.
+
+Edit / delete (Institutes and Departments tabs have Edit and Delete buttons):
+  - Institutes tab (Platform Administrator only): rename an institute, or
+    delete it (type its code to confirm; its departments and
+    projects are deleted with it).
+  - Departments tab: Delete also deletes the department's projects (type
+    the department code to confirm when it has projects).
+
+Check: Top menu -> Institutes -> Sample Institute of Technology.
+Expected: Departments 3, each listed with its Head and project counts.
+Logout.
+
+---------------------------------------------------------------------
+ STAGE 5 - MENTOR CREATES PROJECT 1        (login: Faculty Mentor)
+---------------------------------------------------------------------
+Login:  sit.mentor1@apnileap.org  /  Sample@12345
+
+Institutes -> Sample Institute of Technology -> click
+"Computer Science and Engineering (CSE)" -> [Add Project]
+
+  Team ID / Artefact ID:  filled in automatically (Team-1 / Art-1, ...); read-only
+  Theme Name:      Sustainable Campus
+  Artefact Title:  Smart Energy Monitoring Dashboard
+  Project Title:   Smart Campus Energy Monitoring System
+  Faculty Mentor Name:      Prof. Vikram Naik
+  Project Coordinator Name: Prof. Rajesh Kamble
+  Reviewer Name:            Dr. Suresh Bhat
+  Academic Year:   2026-27   (drop-down, 2026-27 onwards)
+  Semester:        Sem-5     (drop-down: Sem-5, Sem-6, Sem-7, Sem-8)
+
+  The three name boxes accept typed names; people with accounts in the
+  institute are offered as suggestions.
+
+  Student team (4 rows required, 5th optional):
+   #  Name             SRN            Sem  Div
+   1  Ananya Shetty    01SIT23CS001   5    A
+   2  Rahul Kamat      01SIT23CS002   5    A
+   3  Pooja Hegde      01SIT23CS003   5    B
+   4  Karthik Menon    01SIT23CS004   5    B
+
+  Email is filled in for you as SRN@kletech.ac.in, e.g.
+  01sit23cs001@kletech.ac.in (you cannot type it).
+  Optional 5th student: press [+ Add 5th student] and fill ALL fields, e.g.
+   5  Mahesh Rane      01SIT23CS005   5    B      (or leave it out: 4 is enough)
+Save.  You land on the project dashboard (status GREEN, 0%).
+
+Negative tests (expect a message, nothing saved):
+  - Leave one student row empty            -> team of 4 required
+  - Reuse SRN 01SIT23CS001 twice           -> duplicate SRN
+  - Fill only part of the 5th student row  -> all fields or none
+
+---------------------------------------------------------------------
+ STAGE 6 - FILL IN THE PROJECT              (still the Mentor)
+---------------------------------------------------------------------
+Tab "Definition" -> [Edit] -> fill, Save:
+  Need Statement:        The campus pays high electricity bills and has
+                         no live visibility of where energy is used.
+  Problem Statement:     Energy use of labs and hostels is recorded by
+                         hand once a month, so waste is found too late.
+  Objective:             Build a dashboard that shows live energy use per
+                         building and flags abnormal consumption.
+  Learning Outcomes:     IoT sensing, data pipelines, dashboard design,
+                         teamwork and documentation.
+  Foundation Courses Anchored:  Data Structures, DBMS, Computer Networks
+  Functional Blocks:     Sensor nodes, MQTT gateway, database, web
+                         dashboard, alert engine
+  Interfaces:            MQTT (sensor->gateway), REST (gateway->server),
+                         browser dashboard
+  Dependencies:          Department lab access, campus Wi-Fi, 6 sensors
+  Expected Deliverables: Working prototype, report, demo video, source code
+
+Tab "Milestones" -> [Add Milestone] (3 times):
+  1. Title: Requirements and design approved
+     Description: SRS and system design document signed off
+     Due: 2026-10-10
+  2. Title: Sensor prototype working
+     Description: Two sensor nodes sending data to the gateway
+     Due: 2026-11-05
+  3. Title: Dashboard demo to panel
+     Description: End-to-end demo with live data
+     Due: 2026-12-05
+
+Tab "KPIs" -> [Add KPI] (2 times):
+  1. Name: Sensor data accuracy   Target: 95   Unit: %
+  2. Name: Dashboard refresh delay   Target: 5   Unit: seconds
+
+Tab "Documentation" -> [Add Link] (2 times):
+  1. Type: GitHub Repository   Label: Source code
+     URL: https://github.com/sample-org/smart-campus-energy
+  2. Type: Demonstration       Label: Demo video
+     URL: https://example.com/smart-campus-demo
+
+Progress updates:
+  - Milestones tab: [Mark Complete] on "Requirements and design approved"
+  - Top of page: Completion "Edit" -> 30 -> Save
+  - KPIs tab: [Add Measurement] on "Sensor data accuracy":
+      Measured Value: 92    Evidence: Lab test on 2 nodes, 3 Nov 2026
+
+(Many projects at once: on the department page press [Upload CSV], download the template,
+fill one row per project, choose the file and press Import - see README.)
+
+Also create PROJECT 2 (same login, other department, other mentor):
+  Institutes -> SIT -> "Computer Science and Engineering (AI) (CSEAI)"
+  -> [Add Project]
+     Theme Name: Smart Education
+     Artefact Title: Face Recognition Attendance Module
+     Title: AI-Based Attendance Using Face Recognition
+     Faculty Mentor Name: Prof. Kavita Rao
+     Project Coordinator Name: Prof. Neelam Shah
+     Reviewer Name: Dr. Suresh Bhat
+     Academic Year: 2026-27      Semester: Sem-5
+     Team:
+      1  Divya Pai       01SIT23AI001   5  A
+      2  Arjun Bhandari  01SIT23AI002   5  A
+      3  Neha Gokhale    01SIT23AI003   5  B
+      4  Sameer Kini     01SIT23AI004   5  B
+Logout.
+
+-------------------------------------------------------------------------------------------------------------------------------------
+ STAGE 7 - STUDENT VIEWS THEIR OWN TEAM        (login: Student, by SRN)
+---------------------------------------------------------------------
+The team was entered in Stage 5, so the four students already have logins.
+
+Login page:  SRN or email address:  01SIT23CS001
+             Password:              Demo@12345
+(The SRN can be typed in any case. The email 01sit23cs001@kletech.ac.in
+ also works. The default password is the same for every student.)
+
+Expected:
+  - After sign-in you land on your project: Smart Campus Energy Monitoring
+    System (Team-1 or the next number). The top menu shows only Projects,
+    Issues and Reviews.
+  - Everything is READ-ONLY: no Update Status, Add Issue, Add Milestone/KPI/
+    Action/Review, Edit Team, Edit Details or Add Link buttons.
+  - The Overview tab shows the Student Team (the 4-5 members of THIS team) under Execution.
+  - Log in as 01SIT23AI001 (project 2): you see only project 2. A student on
+    project 1 cannot open project 2, the institute, department, reports or
+    administration pages (they are redirected to their project).
+  - Wrong password -> "Invalid SRN/email or password."
+Logout.
+
+-----
+ STAGE 8 - MENTOR MOVES THE PROJECT TO YELLOW, THEN RED
+                                            (login: Faculty Mentor)
+---------------------------------------------------------------------
+Login:  sit.mentor1@apnileap.org  /  Sample@12345
+Open Project 1 -> [Update Status]
+
+A. GREEN -> YELLOW
+     New Status:  Yellow
+     Reason:      Sensor delivery delayed by one week; recoverable
+   Save.  (Yellow circle appears, history is recorded.)
+
+B. YELLOW -> RED
+   [Update Status]
+     New Status:  Red
+     Reason:      Wi-Fi data loss blocks the November prototype demo
+     Blocker:     Shared Wi-Fi drops sensor packets
+     Root Cause:  No dedicated network for the IoT nodes
+     Impact:      Milestone 2 will miss its 5 Nov 2026 due date
+     Support Required:  IT department to provide a dedicated VLAN
+     Corrective Action Already Attempted:
+                  Moved gateway closer to the router and retried
+     Action Owner:      Prof. Vikram Naik
+     Due Date:          2026-11-20
+     Escalation Owner:  Dr. Anil Joshi
+     Next Review Date:  2026-11-25
+   Save.
+
+Expected: project shows a red circle; an Issue and a Corrective Action
+(status OPEN) are created automatically; Challenges and Actions tabs
+show them.
+
+Negative test: from RED try to set GREEN right now -> refused (needs
+a verified action, evidence and reviewer approval).
+
+Then complete the action:
+  Tab "Actions" -> [Mark Completed]
+    Evidence: Dedicated VLAN 40 configured by IT on 18 Nov 2026;
+              48-hour test shows 99% packet delivery (test log attached
+              in Confluence)
+  Save.  (Status: COMPLETED - waiting for a reviewer.)
+
+Negative test: the Mentor sees NO "Verify" button. Only a reviewer /
+head can verify.
+Logout.
+
+---------------------------------------------------------------------
+ STAGE 9 - REVIEWER VERIFIES AND REVIEWS       (login: Reviewer)
+---------------------------------------------------------------------
+Login:  sit.reviewer@apnileap.org  /  Sample@12345
+Open Project 1.
+
+1. Tab "Actions" -> [Verify] on the completed action.
+   Expected: status VERIFIED.
+2. [Add Review] (or tab "Reviews" -> [Add Review]):
+     Comments:  VLAN fix confirmed. Test log reviewed and packet
+                delivery is now above 98%. Prototype milestone can
+                be rescheduled.
+     Decision:  Approve recovery
+     Recommended Status:  Yellow
+     Next Review Date:  2026-12-01
+   Save.
+3. Notice: the Reviewer has NO "Update Status" button (reviewers
+   recommend, they do not change status).
+Logout.
+
+---------------------------------------------------------------------
+ STAGE 10 - RECOVERY: RED -> GREEN     (login: Department Head, CSE)
+---------------------------------------------------------------------
+Login:  sit.hod.cse@apnileap.org  /  Sample@12345
+Open Project 1 -> [Update Status]
+     New Status:  Green
+     Reason:      Root cause fixed; project back on plan
+     Evidence of Resolution:
+                  VLAN 40 in service since 18 Nov 2026; 48-hour test
+                  log shows 99% delivery; reviewer verified the action
+     Tick: "I am an authorized reviewer and I approve this Red-to-Green
+           recovery."
+Save.
+
+Expected: GREEN circle, history shows YELLOW -> RED -> GREEN with the
+approval recorded. Also: Milestones tab -> [Mark Complete] on
+"Sensor prototype working"; Completion Edit -> 65.
+
+(The Dean can do the same. A Faculty Mentor cannot approve Red -> Green.)
+
+Optional: log in as the CSEAI head (sit.hod.ai@) and open Project 2 -
+both heads can see the whole institute (see limitations).
+Logout.
+
+---------------------------------------------------------------------
+ STAGE 11 - DEAN, READ-ONLY AND GLOBAL VIEWS
+---------------------------------------------------------------------
+DEAN  (sit.dean@apnileap.org / Sample@12345)
+  - Institutes -> SIT: sees only the departments given to the Dean, with RAG counts.
+  - Can open any project and can create a project / update status.
+  - Reports (top menu): Weekly Management Report; try [Export CSV].
+
+READ-ONLY STAKEHOLDER  (sit.readonly@apnileap.org / Sample@12345)
+  - Dashboards, project pages (Overview shows the team), Reports.
+  - NO action buttons anywhere; "Add Issue" is also refused.
+
+GLOBAL PROGRAMME LEADER  (programme.leader@apnileap.org / Demo@12345)
+  - Institutes page lists ALL institutes: KLE, ..., and Sample Institute
+    of Technology.
+  - Opens any project; can create projects, change status, review.
+  - Top-menu Reports shows every institute.
+
+PLATFORM ADMINISTRATOR  (platform.admin@apnileap.org / Demo@12345)
+  - Administration: users (search), institutes, departments.
+  - Can deactivate a user: Users tab -> [Deactivate] on
+    sit.readonly@apnileap.org. That user can no longer log in.
+    [Activate] restores it.
+
+---------------------------------------------------------------------
+ STAGE 12 - ISOLATION CHECK BETWEEN ORGANISATIONS
+---------------------------------------------------------------------
+Log in as  kle.mentor@apnileap.org / Demo@12345  (built-in KLE user).
+  - Institutes page shows KLE only; Sample Institute of Technology is
+    not visible.
+  - Opening a SIT project by its address returns "not authorized".
+Log in as sit.mentor1@ -> KLE is not visible either.
+
+---------------------------------------------------------------------
+ EXPECTED FINAL STATE (quick checklist)
+---------------------------------------------------------------------
+[ ] Institute SIT with 3 departments (automatic codes)
+[ ] 9 SIT/global roles exercised
+[ ] 2 projects, each with exactly 4 students (8 total)
+[ ] Project 1: GREEN, 65%, definition filled (9 fields), 3 milestones
+    (2 complete), 2 KPIs (1 measurement), 2 links, 1 issue (added in Stage 8),
+    1 auto-created Red issue, 1 VERIFIED action, 1 review
+[ ] Project 1 history: Created GREEN -> YELLOW -> RED -> GREEN
+[ ] Project 2: GREEN, untouched
+[ ] Jira/Confluence: 2 new issues/pages (only if the token is set)
+
+---------------------------------------------------------------------
+ KNOWN LIMITATIONS (by design in this version)
+---------------------------------------------------------------------
+- A Dean/Head can
+  see only the departments they were given (Users -> Department access).
+- Mentors can read every project in their institute. Students see only their own team.
+- Students' default password is the same for all (Demo@12345) and there is no change-password screen yet.
+- Deleting institutes/departments removes their data in the portal only;
+  Jira issues and Confluence pages already created stay on Atlassian.
+
+---------------------------------------------------------------------
+ CLEANING UP AFTERWARDS (optional)
+---------------------------------------------------------------------
+In pgAdmin/psql on database apnileap_portfolio, or ask Claude to
+"remove the SIT sample data". Also delete the sample Jira issues
+and Confluence pages from your Atlassian site.
+=====================================================================
